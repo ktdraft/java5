@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www/ultraq.net.nz/thymeleaf/layout"
+   layout:decorate="~{admin/dashboardLayout.html}">
+
+<head>
+
+</head>
+
+<body>
+   <section class="row" layout:fragment="content">
+      <div class="col mt-4">
+         <form action="/admin/products/saveOrUpdate" method="post" enctype="multipart/form-data" th:object="${product}">
+            <div class="card">
+               <div class="card-header">
+                  <h2 th:text="${product.isEdited ? 'Update Product' : 'Add New Product'}">Add New Product</h2>
+               </div>
+               <div class="card-body">
+                  <div class="row">
+                     <div class="col-7">
+                        <input type="hidden" th:field="*{isEdited}">
+                        <div class="form-group" th:if="@{product.isEdited}">
+                           <label for="productId">Product ID</label>
+                           <input type="text" class="form-control" name="productId" id="productId"
+                              th:field="*{productId}" aria-describedby="productIdHid" placeholder="Product ID" readonly>
+                           <small th:if="${#fields.hasErrors('productId')}" id="productIdHid"
+                              class="form-text text-muted">Product ID is Required</small>
+                        </div>
+
+                        <div class="form-group">
+                           <label for="name">Name</label>
+                           <input type="text" class="form-control" name="name" id="name" th:field="*{name}"
+                              aria-describedby="nameHid" placeholder="Name">
+                           <small th:if="${#fields.hasErrors('name')}" id="nameHid" class="form-text text-muted">
+                              <span style="color: red;">Name is required</span>
+                           </small>
+                        </div>
+
+                        <div class="form-group">
+                           <label for="quantity">Quantity</label>
+                           <input min="0" max="100" type="number" class="form-control" name="quantity" id="quantity"
+                              th:field="*{quantity}" aria-describedby="quantityHid" placeholder="Quantity">
+                           <small th:if="${#fields.hasErrors('quantity')}" id="quantityHid"
+                              class="form-text text-muted">
+                              <span style="color: red;">
+                                 Quantity is required</small>
+                           </span>
+                        </div>
+
+                        <div class="input-group form-group">
+                           <span class="input-group-text">Unit price</span>
+                           <input min="0" max="10000" type="number" class="form-control" name="unitPrice" id="unitPrice"
+                              th:field="*{unitPrice}" aria-describedby="unitPriceHid" placeholder="Unit price">
+                           <span class="input-group-text">$</span>
+                        </div>
+                        <small th:if="${#fields.hasErrors('unitPrice')}" id="unitPriceHid" class="form-text text-muted">
+                           <span style="color: red;">
+                              Unit Price is required
+                           </span>
+                        </small>
+
+                        <div class="form-group">
+                           <label for="status">Status</label>
+                           <select class="form-control" name="status" th:field="*{status}" id="status">
+                              <option th:selected="${product.status == 0}" value="0">On sale</option>
+                              <option th:selected="${product.status == 1}" value="1">Out of stock</option>
+                              <option th:selected="${product.status == 2}" value="2">Featured</option>
+                              <option th:selected="${product.status == 3}" value="3">Bestseller</option>
+                              <option th:selected="${product.status == 4}" value="4">Out of order</option>
+                           </select>
+                        </div>
+                     </div>
+                     <div class="col-3">
+                        <script>
+                           function readURL(input) {
+                              if (input.files && input.files[0]) {
+                                 var reader = new FileReader();
+
+                                 reader.onload = function (e) {
+                                    $('#image').attr('src', e.target.result);
+                                 };
+
+                                 reader.readAsDataURL(input.files[0]);
+                              }
+                           }
+                        </script>
+
+                        <img id="image"
+                           th:src="${product.image != null ? '/admin/products/images/' + product.image : '/images/logo.png'}"
+                           src="https://img.jakpost.net/c/2019/06/18/2019_06_18_74603_1560829849._large.jpg" width="90%"
+                           class="img-fluid rounded mb-2" alt="">
+
+                        <div class="form-group">
+                           <label for="productImage">Image file</label>
+                           <input type="file" onchange="readURL(this);" class="form-control-file" name="imageFile"
+                              id="productImage" placeholder="Product Image" aria-describedby="imageHid">
+                           <!-- <small th:if="${#fields.hasErrors('productImage')}" id="imageHid"
+                              class="form-text text-muted">
+                              Product image is required
+                           </small> -->
+                        </div>
+
+                        <div class="input-group form-group">
+                           <span class="input-group-text">Discount</span>
+                           <input min="0" max="100" type="number" name="discount" id="discount" th:field="*{discount}"
+                              class="form-control" aria-describedby="discountHid" placeholder="Discount">
+                           <span class="input-group-text">%</span>
+                        </div>
+                        <small th:if="${#fields.hasErrors('discount')}" id="discountHid" class="form-text text-muted">
+                           <span style="color: red;">
+                              Discount is required
+                           </span>
+                        </small>
+
+                        <div class="form-group">
+                           <label for="categoryId">Category</label>
+                           <select class="form-control" name="categoryId" id="categoryId" th:field="*{categoryId}">
+                              <option th:each="item : ${categories}" th:value="${item.categoryId}"
+                                 th:text="${item.name}" th:selected="${item.categoryId == product.categoryId}">
+                              </option>
+                           </select>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div class="row">
+                     <div class="col">
+                        <div class="form-group">
+                           <label for="description">Description</label>
+                           <textarea class="form-control" name="description" id="description" rows="5"
+                              th:field="*{description}" aria-describedby="descriptionHid"></textarea>
+                           <small th:if="${#fields.hasErrors('description')}" id="descriptionHid"
+                              class="form-text text-muted">
+                              <span style="color: red;">
+                                 Description is required
+                              </span>
+                           </small>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="card-footer text-muted">
+                  <button type="reset" class="btn btn-secondary">Reset</button>
+                  <button class="btn btn-primary"
+                     th:text="${product.getIsEdited() ? 'Update' : 'Add New'}">Save</button>
+               </div>
+            </div>
+         </form>
+      </div>
+
+   </section>
+</body>
+
+</html>
